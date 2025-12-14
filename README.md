@@ -1,5 +1,9 @@
 # ctxfactory
 
+[![CI](https://github.com/shiiyan/ctxfactory/actions/workflows/ci.yaml/badge.svg)](https://github.com/shiiyan/ctxfactory/actions/workflows/ci.yaml)
+[![pkg.go.dev](https://pkg.go.dev/badge/github.com/shiiyan/ctxfactory.svg)](https://pkg.go.dev/github.com/shiiyan/ctxfactory)
+
+
 Minimal Factory-style context builder for Go tests.  
 Easily set defaults, overrides, and skips for `context.Context`.
 
