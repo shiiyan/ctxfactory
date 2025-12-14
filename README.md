@@ -16,20 +16,57 @@ go get github.com/shiiyan/ctxfactory
 ## Usage
 
 ```go
-// use github.com/shiiyan/ctxfactory
+package main
 
-factory := ctxfactory.NewContextFactory(map[interface{}]interface{}{
-  "userID":  0,
-  "traceID": "default-trace",
-  "isAdmin": false,
-})
+import (
+    "context"
+    "fmt"
+    "time"
 
-// Default context
-ctx1 := factory.With(nil, nil)
+    "github.com/shiiyan/ctxfactory"
+)
 
-// Override userID
-ctx2 := factory.With(map[interface{}]interface{}{"userID": 42}, nil)
+type ctxKey string
 
-// Skip traceID
-ctx3 := factory.With(map[interface{}]interface{}{"isAdmin": true}, []interface{}{"traceID"})
+var userKey = ctxKey("user")
+
+type User struct {
+    ID       int
+    Name     string
+    Location string
+}
+
+func main() {
+    f := ctxfactory.NewContextFactory(map[any]any{
+        userKey:  User{ID: 0, Name: "guest", Location: "unknown"},
+        "traceID": "default-trace", // string key is allowed but less safe
+    })
+
+    // Default context (uses context.Background())
+    ctx1 := f.Build()
+    u := ctx1.Value(userKey).(User)
+
+    // Override a default (fluent With then Build)
+    ctx2 := f.With(map[any]any{
+        userKey: User{ID: 42, Name: "Alice", Location: "SF"},
+    }).Build()
+    u2 := ctx2.Value(userKey).(User)
+
+    // Skip a default key when building
+    ctx3 := f.Skip("traceID").Build()
+
+    // Build using an existing base context
+    base := context.WithValue(context.Background(), "requestID", "req-123")
+    ctx4 := f.BuildWith(base)
+
+    // Build with timeout (caller must call cancel)
+    ctx5, cancel := f.BuildWithTimeout(nil, 200*time.Millisecond)
+    defer cancel()
+    _ = ctx5
+
+    // Build with cancel
+    ctx6, cancel2 := f.BuildWithCancel(nil)
+    _ = ctx6
+    cancel2()
+}
 ```
