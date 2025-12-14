@@ -6,12 +6,14 @@ Easily set defaults, overrides, and skips for `context.Context`.
 ## Install
 
 ```bash
-go get github.com/y/ctxfactory
+go get github.com/shiiyan/ctxfactory
 ```
 
 ## Usage
 
 ```go
+// use github.com/shiiyan/ctxfactory
+
 factory := ctxfactory.NewContextFactory(map[interface{}]interface{}{
   "userID":  0,
   "traceID": "default-trace",
@@ -27,4 +29,3 @@ ctx2 := factory.With(map[interface{}]interface{}{"userID": 42}, nil)
 // Skip traceID
 ctx3 := factory.With(map[interface{}]interface{}{"isAdmin": true}, []interface{}{"traceID"})
 ```
-
