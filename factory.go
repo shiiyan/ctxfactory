@@ -49,12 +49,12 @@ func (f *ContextFactory) Skip(keys ...any) *ContextFactory {
 
 // Build constructs a context from defaults and overrides, honoring skips.
 func (f *ContextFactory) Build() context.Context {
-	return f.BuildWith(nil)
+	return f.BuildWith(context.TODO())
 }
 
 // BuildWith constructs a context using the provided base context.
 func (f *ContextFactory) BuildWith(base context.Context) context.Context {
-    if base == nil {
+    if base == nil || base == context.TODO() {
         base = context.Background()
     }
     ctx := base
