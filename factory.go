@@ -12,8 +12,8 @@ type ContextFactory struct {
 	skipKeys  map[any]struct{}
 }
 
-// NewContextFactory creates a factory with arbitrary default values.
-func NewContextFactory(defaults map[any]any) *ContextFactory {
+// New creates a context factory with arbitrary default values.
+func New(defaults map[any]any) *ContextFactory {
 	if defaults == nil {
 		defaults = map[any]any{}
 	}
@@ -54,41 +54,41 @@ func (f *ContextFactory) Build() context.Context {
 
 // BuildWith constructs a context using the provided base context.
 func (f *ContextFactory) BuildWith(base context.Context) context.Context {
-    if base == nil || base == context.TODO() {
-        base = context.Background()
-    }
-    ctx := base
+	if base == nil || base == context.TODO() {
+		base = context.Background()
+	}
+	ctx := base
 
-    // apply defaults unless skipped
-    for k, v := range f.defaults {
-        if _, skip := f.skipKeys[k]; skip {
-            continue
-        }
-        ctx = context.WithValue(ctx, k, v)
-    }
+	// apply defaults unless skipped
+	for k, v := range f.defaults {
+		if _, skip := f.skipKeys[k]; skip {
+			continue
+		}
+		ctx = context.WithValue(ctx, k, v)
+	}
 
-    // apply overrides (they replace defaults)
-    for k, v := range f.overrides {
-        ctx = context.WithValue(ctx, k, v)
-    }
+	// apply overrides (they replace defaults)
+	for k, v := range f.overrides {
+		ctx = context.WithValue(ctx, k, v)
+	}
 
-    return ctx
+	return ctx
 }
 
 // BuildWithCancel wraps the built context with a cancel function.
 func (f *ContextFactory) BuildWithCancel(base context.Context) (context.Context, context.CancelFunc) {
-    ctx := f.BuildWith(base)
-    return context.WithCancel(ctx)
+	ctx := f.BuildWith(base)
+	return context.WithCancel(ctx)
 }
 
 // BuildWithTimeout wraps the built context with a timeout and returns the cancel func.
 func (f *ContextFactory) BuildWithTimeout(base context.Context, d time.Duration) (context.Context, context.CancelFunc) {
-    ctx := f.BuildWith(base)
-    return context.WithTimeout(ctx, d)
+	ctx := f.BuildWith(base)
+	return context.WithTimeout(ctx, d)
 }
 
 // BuildWithDeadline wraps the built context with a deadline and returns the cancel func.
 func (f *ContextFactory) BuildWithDeadline(base context.Context, deadline time.Time) (context.Context, context.CancelFunc) {
-    ctx := f.BuildWith(base)
-    return context.WithDeadline(ctx, deadline)
+	ctx := f.BuildWith(base)
+	return context.WithDeadline(ctx, deadline)
 }

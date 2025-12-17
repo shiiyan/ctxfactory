@@ -9,7 +9,7 @@ import (
 func TestBuildAppliesDefaults(t *testing.T) {
 	t.Parallel()
 
-	f := NewContextFactory(map[any]any{
+	f := New(map[any]any{
 		"user":  1,
 		"trace": "t1",
 	})
@@ -26,7 +26,7 @@ func TestBuildAppliesDefaults(t *testing.T) {
 func TestWithOverridesReplaceDefaults(t *testing.T) {
 	t.Parallel()
 
-	f := NewContextFactory(map[any]any{"user": 1})
+	f := New(map[any]any{"user": 1})
 	f.With(map[any]any{"user": 42})
 
 	ctx := f.Build()
@@ -38,7 +38,7 @@ func TestWithOverridesReplaceDefaults(t *testing.T) {
 func TestSkipOmitsDefaultKeys(t *testing.T) {
 	t.Parallel()
 
-	f := NewContextFactory(map[any]any{
+	f := New(map[any]any{
 		"user":  1,
 		"trace": "t1",
 	})
@@ -61,7 +61,7 @@ func TestBuildWithBaseContext(t *testing.T) {
 
 	baseKey := baseKeyType{}
 	base := context.WithValue(context.Background(), baseKey, "ok")
-	f := NewContextFactory(map[any]any{"user": 1})
+	f := New(map[any]any{"user": 1})
 
 	ctx := f.BuildWith(base)
 	if v := ctx.Value(baseKey); v != "ok" {
@@ -75,7 +75,7 @@ func TestBuildWithBaseContext(t *testing.T) {
 func TestBuildWithCancelReturnsCancelableContext(t *testing.T) {
 	t.Parallel()
 
-	f := NewContextFactory(nil)
+	f := New(nil)
 
 	ctx, cancel := f.BuildWithCancel(context.TODO())
 	// cancel and ensure Done is closed
@@ -92,7 +92,7 @@ func TestBuildWithCancelReturnsCancelableContext(t *testing.T) {
 func TestBuildWithTimeoutSetsDeadline(t *testing.T) {
 	t.Parallel()
 
-	f := NewContextFactory(nil)
+	f := New(nil)
 
 	ctx, cancel := f.BuildWithTimeout(context.TODO(), 10*time.Millisecond)
 	defer cancel()
@@ -111,23 +111,23 @@ func TestBuildWithTimeoutSetsDeadline(t *testing.T) {
 }
 
 func TestBuildWithDeadlineSetsDeadline(t *testing.T) {
-    t.Parallel()
+	t.Parallel()
 
-    f := NewContextFactory(nil)
+	f := New(nil)
 
-    deadline := time.Now().Add(10 * time.Millisecond)
-    ctx, cancel := f.BuildWithDeadline(context.TODO(), deadline)
-    defer cancel()
+	deadline := time.Now().Add(10 * time.Millisecond)
+	ctx, cancel := f.BuildWithDeadline(context.TODO(), deadline)
+	defer cancel()
 
-    if _, ok := ctx.Deadline(); !ok {
-        t.Fatal("expected a deadline to be set")
-    }
+	if _, ok := ctx.Deadline(); !ok {
+		t.Fatal("expected a deadline to be set")
+	}
 
-    // ensure context is done after the deadline
-    select {
-    case <-ctx.Done():
-        // ok
-    case <-time.After(200 * time.Millisecond):
-        t.Fatal("context did not expire after deadline")
-    }
+	// ensure context is done after the deadline
+	select {
+	case <-ctx.Done():
+		// ok
+	case <-time.After(200 * time.Millisecond):
+		t.Fatal("context did not expire after deadline")
+	}
 }
