@@ -37,7 +37,7 @@ type User struct {
 }
 
 func main() {
-    f := ctxfactory.NewContextFactory(map[any]any{
+    f := ctxfactory.New(map[any]any{
         userKey:  User{ID: 0, Name: "guest", Location: "unknown"},
         "traceID": "default-trace", // string key is allowed but less safe
     })
